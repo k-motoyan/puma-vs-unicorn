@@ -1,0 +1,13 @@
+#users_show
+  = link_to 'List', users_path
+  h1= @user.name
+  table
+    tr
+      th= User.human_attribute_name :mail
+      td= @user.mail
+    tr
+      th= User.human_attribute_name :age
+      td= @user.age
+    tr
+      th= User.human_attribute_name :birth_date
+      td= @user.birth_date.strftime('%Y/%m/%d')

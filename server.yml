@@ -1,0 +1,169 @@
+- hosts: all
+  vars:
+    home_directory: /home/vagrant
+    ruby_version: 2.3.0
+  tasks:
+    - name: update packages
+      apt: update_cache=yes
+      become: yes
+
+    - name: upgrade packages
+      apt: upgrade=dist
+      become: yes
+
+    - name: add bash setup to bash_profile
+      lineinfile: dest=~/.bash_profile
+                  regexp=".bashrc"
+                  insertafter=EOF
+                  line="source ~/.bashrc"
+                  create=yes
+      become: no
+
+    - name: make login user directories
+      file: path={{ item }} state=directory
+      with_items:
+        - ~/.bash.d
+        - ~/tmp
+      become: no
+
+    - name: make application directories
+      file: path={{ item }} state=directory owner=ubuntu group=ubuntu
+      with_items:
+        - /var/run/app
+        - /var/log/app
+        - /var/www
+      become: yes
+
+    - name: install required packages
+      apt: name={{ item }} state=present
+      with_items:
+        - libssl-dev
+        - autoconf
+        - bison
+        - build-essential
+        - libssl-dev
+        - libyaml-dev
+        - libreadline6-dev
+        - zlib1g-dev
+        - libncurses5-dev
+        - libffi-dev
+        - libgdbm3
+        - libgdbm-dev
+        - postgresql
+        - libpq-dev
+        - python-psycopg2
+        - nodejs
+        - nginx
+        - git
+      become: yes
+
+    - name: remove default site configure
+      file: path=/etc/nginx/sites-enabled/defauls state=absent
+      become: yes
+
+    - name: set nginx global configure
+      copy: src=./server/nginx.conf
+            dest=/etc/nginx/nginx.conf
+            backup=no
+      become: yes
+      notify:
+        - restart nginx
+
+    - name: set nginx puma app configure
+      copy: src=./server/nginx-puma.conf
+            dest=/etc/nginx/sites-enabled/nginx-puma.conf
+            backup=no
+      become: yes
+      notify:
+        - restart nginx
+
+    - name: set nginx unicorn app configure
+      copy: src=./server/nginx-unicorn.conf
+            dest=/etc/nginx/sites-enabled/nginx-unicorn.conf
+            backup=no
+      become: yes
+      notify:
+        - restart nginx
+
+    - name: install rbenv
+      git: repo=https://github.com/sstephenson/rbenv.git dest=~/.rbenv
+      become: no
+
+    - name: put rbenv setup file
+      copy: src=./server/rbenv_setup.bash
+            dest=~/.bash.d/rbenv_setup.bash
+            mode=700
+      become: no
+
+    - name: add rbenv setup to bash_profile
+      lineinfile: dest=~/.bash_profile
+                  regexp="rbenv"
+                  insertafter=EOF
+                  line="source ~/.bash.d/rbenv_setup.bash"
+                  create=yes
+      become: no
+
+    - name: install ruby-build
+      git: repo=https://github.com/sstephenson/ruby-build.git
+           dest=~/.rbenv/plugins/ruby-build
+      become: no
+
+    - name: setup rbenv
+      shell: bash -lc "source ~/.bash.d/rbenv_setup.bash"
+      become: no
+
+    - name: checks if target ruby is installed
+      shell: bash -lc "rbenv versions | grep {{ ruby_version }} | tr '*' ' ' | sed -e 's/\s\+//' | cut -f1 -d' '"
+      register: ruby_is_installed
+      become: no
+
+    - name: install ruby
+      shell: bash -lc "rbenv install {{ ruby_version }}"
+      when: ruby_is_installed.stdout != ruby_version
+      become: no
+
+    - name: set global ruby version
+      shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
+      become: no
+
+    - name: put gemrc
+      copy: src=./server/.gemrc dest=~/.gemrc
+      become: no
+
+    - name: install default gems
+      gem: name={{ item }}
+           state=present
+           executable=~/.rbenv/shims/gem
+           user_install=False
+      with_items:
+        - bundler
+        - rails
+      become: no
+
+    - name: rbenv setting reload
+      shell: bash -lc "rbenv rehash"
+      become: no
+
+    - name: create database user
+      postgresql_user: name=user
+                       password=pass
+                       role_attr_flags=SUPERUSER,CREATEDB,LOGIN
+      become: yes
+      become_user: postgres
+
+    - name: put rc.local
+      copy: src=./server/rc.local dest=/etc/rc.local
+      become: yes
+
+    - name: add rails secret key base to environment
+      lineinfile: dest=/etc/environment
+                  regexp="SECRET_KEY_BASE"
+                  insertafter=EOF
+                  line="SECRET_KEY_BASE={{ lookup('env', 'SECRET_KEY_BASE') }}"
+                  create=no
+      become: yes
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
+      become: yes

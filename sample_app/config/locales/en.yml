@@ -1,0 +1,9 @@
+en:
+  activerecord:
+    models:
+      user: User
+    attributes:
+      name: Name
+      birth_date: Birth date
+      age: Age
+      mail: Mail

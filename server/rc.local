@@ -1,0 +1,6 @@
+#!/bin/sh -e
+
+[[ -e /var/log/app ]] || mkdir -p /var/log/app && chown ubuntu:ubuntu /var/log/app
+[[ -e /var/run/app ]] || mkdir -p /var/run/app && chown ubuntu:ubuntu /var/run/app
+
+exit 0

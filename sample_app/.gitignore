@@ -1,0 +1,6 @@
+.bundle
+log
+tmp
+public/assets
+
+!.keep

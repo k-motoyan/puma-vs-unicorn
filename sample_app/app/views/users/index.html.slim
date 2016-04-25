@@ -1,0 +1,19 @@
+#users_index
+  h1= User.model_name.human
+  - if @users.present?
+    table.mui-table.mui-table--bordered
+      thead
+        tr
+          th= User.human_attribute_name :name
+          th= User.human_attribute_name :age
+          th= User.human_attribute_name :mail
+      tbody
+        - @users.each do |user|
+          tr
+            td= link_to user.name, user_path(user)
+            td= user.age
+            td= user.mail
+  - else
+    .mui-pane
+      .mui--text-dark-secondary.mui--text-display1
+        p Record not found.
