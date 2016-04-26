@@ -155,12 +155,17 @@
       copy: src=./server/rc.local dest=/etc/rc.local
       become: yes
 
-    - name: add rails secret key base to environment
+    - name: add environment variables
       lineinfile: dest=/etc/environment
-                  regexp="SECRET_KEY_BASE"
+                  regexp={{ item.regexp }}
                   insertafter=EOF
-                  line="SECRET_KEY_BASE={{ lookup('env', 'SECRET_KEY_BASE') }}"
+                  line={{ item.line }}
                   create=no
+      with_items:
+        - { regexp: "SECRET_KEY_BASE", line: "SECRET_KEY_BASE={{ lookup('env', 'SECRET_KEY_BASE') }}" }
+        - { regexp: "DB_HOST", line: "DB_HOST={{ lookup('env', 'DB_HOST') }}" }
+        - { regexp: "DB_USER", line: "DB_USER={{ lookup('env', 'DB_USER') }}" }
+        - { regexp: "DB_PASS", line: "DB_PASS={{ lookup('env', 'DB_PASS') }}" }
       become: yes
 
   handlers:
