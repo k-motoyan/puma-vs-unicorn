@@ -1,6 +1,5 @@
 - hosts: all
   vars:
-    home_directory: /home/vagrant
     ruby_version: 2.3.0
   tasks:
     - name: update packages
@@ -150,6 +149,7 @@
                        role_attr_flags=SUPERUSER,CREATEDB,LOGIN
       become: yes
       become_user: postgres
+      when: vagrant == 'yes'
 
     - name: put rc.local
       copy: src=./server/rc.local dest=/etc/rc.local

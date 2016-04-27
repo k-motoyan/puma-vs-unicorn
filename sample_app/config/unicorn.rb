@@ -1,13 +1,13 @@
 worker_processes 4
 
-pid    '/home/vagrant/tmp/unicorn.pid'
-listen '/home/vagrant/run/unicorn.sock', backlog: 64
+pid    '/var/run/app/unicorn.pid'
+listen '/var/run/app/unicorn.sock', backlog: 1024
 
 timeout 30
 
 preload_app true
 
-before_fork do |server, worker|
+before_fork do |_server, _worker|
   Signal.trap 'TERM' do
     puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
     Process.kill 'QUIT', Process.pid
@@ -17,10 +17,11 @@ before_fork do |server, worker|
     ActiveRecord::Base.connection.disconnect!
 end
 
-after_fork do |server, worker|
+after_fork do |_server, _worker|
   Signal.trap 'TERM' do
     puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to sent QUIT'
   end
 
-  defined?(ActiveRecord::Base) and ActiveRecord::Base.establish_connection
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection
 end

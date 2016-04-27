@@ -1,7 +1,7 @@
-pidfile    '/home/vagrant/tmp/puma.pid'
-state_path '/home/vagrant/tmp/puma.state'
+pidfile    '/var/run/app/puma.pid'
+state_path '/var/run/app/puma.state'
 
-bind 'unix:///home/vagrant/run/puma.sock'
+bind 'unix:///var/run/app/puma.sock'
 
 worker_timeout 30
 
@@ -10,6 +10,12 @@ threads 4, 16
 
 preload_app!
 
+before_fork do
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.connection_pool.disconnect!
+end
+
 on_worker_boot do
-  ActiveRecord::Base.establish_connection
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection
 end
