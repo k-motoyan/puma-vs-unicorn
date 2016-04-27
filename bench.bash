@@ -1,4 +1,4 @@
-HOST='http://localhost:8081'
+HOST='http://54.199.162.94'
 
 echo $'\e[32m=====================\e[m'
 echo $'\e[32m== Puma bench mark ==\e[m'
