@@ -9,7 +9,6 @@ gem 'jquery-rails'
 gem 'slim-rails'
 gem 'unicorn'
 gem 'puma'
-gem 'dotenv-rails'
 gem 'faker'
 
 group :development, :test do
