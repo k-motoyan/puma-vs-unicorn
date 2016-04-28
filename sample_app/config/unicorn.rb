@@ -1,7 +1,7 @@
-worker_processes 4
+worker_processes 10
 
 pid    '/var/run/app/unicorn.pid'
-listen '/var/run/app/unicorn.sock', backlog: 1024
+listen '/var/run/app/rails.sock', backlog: 1024
 
 timeout 30
 

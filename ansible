@@ -1,2 +1,2 @@
 #!/bin/bash
-dotenv ansible-playbook -i server.ini server.yml --extra-vars "vagrant=no"
+dotenv ansible-playbook -i server.ini server.yml

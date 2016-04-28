@@ -149,7 +149,10 @@
                        role_attr_flags=SUPERUSER,CREATEDB,LOGIN
       become: yes
       become_user: postgres
-      when: vagrant == 'yes'
+
+    - name: enable postgresql service
+      service: name=postgresql enabled=yes
+      become: yes
 
     - name: put rc.local
       copy: src=./server/rc.local dest=/etc/rc.local

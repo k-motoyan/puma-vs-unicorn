@@ -1,12 +1,12 @@
 pidfile    '/var/run/app/puma.pid'
 state_path '/var/run/app/puma.state'
 
-bind 'unix:///var/run/app/puma.sock'
+bind 'unix:///var/run/app/rails.sock'
 
 worker_timeout 30
 
 workers 2
-threads 4, 16
+threads 40, 40
 
 preload_app!
 
