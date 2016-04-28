@@ -1,44 +1,25 @@
+echo $'\e[32m====================\e[m'
+echo $'\e[32m= Start bench mark =\e[m'
+echo $'\e[32m====================\e[m'
+echo ''
+
 HOST='http://54.199.162.94'
+ACTIONS=(/ /users /proxy)
+CONNECTION_COUNTS=(1 10 50 100)
 
-echo $'\e[32m=====================\e[m'
-echo $'\e[32m== Puma bench mark ==\e[m'
-echo $'\e[32m=====================\e[m'
-echo ''
+for action in ${ACTIONS[@]}; do
+  for connection in ${CONNECTION_COUNTS[@]}; do
+    if [ $connection -eq 1 ]; then
+      thread=1
+    else
+      thread=5
+    fi
 
-echo $'\e[32m== Connection => 1, Request => GET /\e[m'
-wrk -t 1 -c 1 -d 10s -H 'Accept-Encoding: gzip' $HOST
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 5, Request => GET /\e[m'
-wrk -t 5 -c 5 -d 10s -H 'Accept-Encoding: gzip' $HOST
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 25, Request => GET /\e[m'
-wrk -t 5 -c 25 -d 10s -H 'Accept-Encoding: gzip' $HOST
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 1, Request => GET /users\e[m'
-wrk -t 1 -c 1 -d 10s -H 'Accept-Encoding: gzip' $HOST/users
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 5, Request => GET /users\e[m'
-wrk -t 5 -c 5 -d 10s -H 'Accept-Encoding: gzip' $HOST/users
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 25, Request => GET /users\e[m'
-wrk -t 5 -c 25 -d 10s -H 'Accept-Encoding: gzip' $HOST/users
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 1, Request => GET /proxy\e[m'
-wrk -t 1 -c 1 -d 10s -H 'Accept-Encoding: gzip' $HOST/proxy
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 5, Request => GET /proxy\e[m'
-wrk -t 5 -c 5 -d 10s -H 'Accept-Encoding: gzip' $HOST/proxy
-sleep 5
-echo ''
-echo $'\e[32m== Connection => 25, Request => GET /proxy\e[m'
-wrk -t 5 -c 25 -d 10s -H 'Accept-Encoding: gzip' $HOST/proxy
+    echo $'\e[32m* Request => \e[m'GET ${action}$'\e[32m\tConnection => \e[m'${connection}
+    wrk -t ${thread} -c ${connection} -d 10s -H 'Accept-Encoding: gzip' ${HOST}${action}
+    echo ''
+    sleep 5
+  done
+done
 
-echo ''
 echo $'\e[32mFinish!!\e[m'
