@@ -3,6 +3,10 @@ worker_processes 10
 pid    '/var/run/app/unicorn.pid'
 listen '/var/run/app/rails.sock', backlog: 1024
 
+log_path = '/var/www/puma-vs-unicorn/sample_app/log/unicorn.log'
+stderr_path log_path
+stdout_path log_path
+
 timeout 30
 
 preload_app true

@@ -3,6 +3,9 @@ state_path '/var/run/app/puma.state'
 
 bind 'unix:///var/run/app/rails.sock'
 
+log_path = '/var/www/puma-vs-unicorn/sample_app/log/puma.log'
+stdout_redirect log_path, log_path, true
+
 worker_timeout 30
 
 workers 2

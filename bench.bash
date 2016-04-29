@@ -3,7 +3,7 @@ echo $'\e[32m= Start bench mark =\e[m'
 echo $'\e[32m====================\e[m'
 echo ''
 
-HOST='http://54.199.162.94'
+HOST='http://54.199.205.117'
 ACTIONS=(/ /users /proxy)
 CONNECTION_COUNTS=(1 10 50 100)
 
