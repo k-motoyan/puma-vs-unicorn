@@ -68,17 +68,9 @@
       notify:
         - restart nginx
 
-    - name: set nginx puma app configure
-      copy: src=./server/nginx-puma.conf
-            dest=/etc/nginx/sites-enabled/nginx-puma.conf
-            backup=no
-      become: yes
-      notify:
-        - restart nginx
-
-    - name: set nginx unicorn app configure
-      copy: src=./server/nginx-unicorn.conf
-            dest=/etc/nginx/sites-enabled/nginx-unicorn.conf
+    - name: set nginx rails app configure
+      copy: src=./server/nginx-rails.conf
+            dest=/etc/nginx/sites-enabled/nginx-rails.conf
             backup=no
       become: yes
       notify:
@@ -142,13 +134,6 @@
     - name: rbenv setting reload
       shell: bash -lc "rbenv rehash"
       become: no
-
-    - name: create database user
-      postgresql_user: name=user
-                       password=pass
-                       role_attr_flags=SUPERUSER,CREATEDB,LOGIN
-      become: yes
-      become_user: postgres
 
     - name: enable postgresql service
       service: name=postgresql enabled=yes
