@@ -34,6 +34,9 @@ resource "aws_vpc" "vpc" {
 resource "aws_internet_gateway" "gateway" {
   vpc_id = "${aws_vpc.vpc.id}"
   depends_on = ["aws_vpc.vpc"]
+  tags {
+    Name = "puma-vs-unicorn-gateway"
+  }
 }
 
 #
@@ -44,24 +47,36 @@ resource "aws_subnet" "web-a" {
   vpc_id = "${aws_vpc.vpc.id}"
   cidr_block = "10.1.0.0/24"
   availability_zone = "ap-northeast-1a"
+  tags {
+    Name = "puma-vs-unicorn-web-a"
+  }
 }
 
 resource "aws_subnet" "web-c" {
   vpc_id = "${aws_vpc.vpc.id}"
   cidr_block = "10.1.1.0/24"
   availability_zone = "ap-northeast-1c"
+  tags {
+    Name = "puma-vs-unicorn-web-c"
+  }
 }
 
 resource "aws_subnet" "db-a" {
   vpc_id = "${aws_vpc.vpc.id}"
   cidr_block = "10.1.2.0/24"
   availability_zone = "ap-northeast-1a"
+  tags {
+    Name = "puma-vs-unicorn-db-a"
+  }
 }
 
 resource "aws_subnet" "db-c" {
   vpc_id = "${aws_vpc.vpc.id}"
   cidr_block = "10.1.3.0/24"
   availability_zone = "ap-northeast-1c"
+  tags {
+    Name = "puma-vs-unicorn-db-c"
+  }
 }
 
 #
@@ -73,6 +88,9 @@ resource "aws_route_table" "route_table" {
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = "${aws_internet_gateway.gateway.id}"
+  }
+  tags {
+    Name = "puma-vs-unicorn-route-table"
   }
 }
 
@@ -119,6 +137,9 @@ resource "aws_security_group" "web-security" {
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags {
+    Name = "puma-vs-unicorn-security-web"
+  }
 }
 
 resource "aws_security_group" "db-security" {
@@ -136,6 +157,9 @@ resource "aws_security_group" "db-security" {
     to_port = 0
     protocol = "-1"
     cidr_blocks = ["${aws_subnet.web-a.cidr_block}", "${aws_subnet.web-c.cidr_block}"]
+  }
+  tags {
+    Name = "puma-vs-unicorn-security-db"
   }
 }
 
@@ -157,7 +181,7 @@ resource "aws_instance" "puma-vs-unicorn-a01" {
     volume_size = "20"
   }
   tags {
-    Name = "puma-vs-unicorn-a01"
+    Name = "puma-vs-unicorn-web-a01"
   }
 }
 
@@ -192,6 +216,9 @@ resource "aws_db_instance" "puma-vs-unicorn-a01" {
   db_subnet_group_name   = "${aws_db_subnet_group.db-subnets.name}"
   parameter_group_name   = "default.postgres9.5"
   vpc_security_group_ids = ["${aws_security_group.db-security.id}"]
+  tags {
+    Name = "puma-vs-unicorn-db-a01"
+  }
 }
 
 #
@@ -203,5 +230,5 @@ output "public ip of puma-vs-unicorn-a01" {
 }
 
 output "database endpoint of puma-vs-unicorn-a01" {
-  value = "${aws_db_instance.puma-vs-unicorn-a.endpoint}"
+  value = "${aws_db_instance.puma-vs-unicorn-a01.endpoint}"
 }
